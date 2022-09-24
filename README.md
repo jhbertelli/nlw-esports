@@ -5,7 +5,7 @@
 ### Rodando o app mobile
 
 1. npm install
-2. expo start --localhost --android
+2. expo start --localhost --android ou apenas expo start --android
 
 ### Rodando o servidor
 
