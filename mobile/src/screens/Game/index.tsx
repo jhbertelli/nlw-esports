@@ -4,31 +4,39 @@ import { useNavigation, useRoute } from "@react-navigation/native"
 import { View, Text, TouchableOpacity, Image, FlatList } from "react-native"
 import { Entypo } from "@expo/vector-icons"
 
-import { styles } from "./styles"
-import logoImg from "../../assets/logo-nlw-esports.png"
-import { THEME } from "../../theme"
 import { GameParams } from "../../@types/navigation"
+import { styles } from "./styles"
+import { THEME } from "../../theme"
+import logoImg from "../../assets/logo-nlw-esports.png"
 
 import { Background } from "../../components/Background"
 import { Heading } from "../../components/Heading"
 import { ConnectCard, ConnectCardProps } from "../../components/ConnectCard"
+import { ConnectMatch } from "../../components/ConnectMatch"
 
 export function Game() {
     const [connect, setConnect] = useState<ConnectCardProps[]>([])
+    const [discordSelected, setDiscordSelected] = useState('')
 
     const navigation = useNavigation()
     const route = useRoute()
     const game = route.params as GameParams
+    
+    function handleGoBack() {
+        navigation.goBack()
+    }
+
+    async function getDiscordUser(adsId: string) {
+        fetch(`http://192.168.0.7:7777/ads/${adsId}/discord`)
+            .then((response) => response.json())
+            .then((data) => setDiscordSelected(data.discord))
+    }
 
     useEffect(() => {
         fetch(`http://192.168.0.7:7777/games/${game.id}/ads`)
             .then((response) => response.json())
             .then((data) => setConnect(data))
     }, [])
-
-    function handleGoBack() {
-        navigation.goBack()
-    }
 
     return (
         <Background>
@@ -58,7 +66,7 @@ export function Game() {
                     data={connect}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <ConnectCard data={item} onConnect={() => {}} />
+                        <ConnectCard data={item} onConnect={() => getDiscordUser(item.id)} />
                     )}
                     horizontal
                     style={styles.containerList}
@@ -69,6 +77,11 @@ export function Game() {
                             Não há anúncios publicados ainda.
                         </Text>
                     )}
+                />
+                <ConnectMatch 
+                    visible={discordSelected.length > 0}
+                    discord={discordSelected}
+                    onClose={() => setDiscordSelected('')}
                 />
             </SafeAreaView>
         </Background>
